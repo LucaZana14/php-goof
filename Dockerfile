@@ -1,5 +1,5 @@
 # Usiamo l'immagine ufficiale di PHP con Apache
-FROM php:8.3-apache-bookworm
+FROM php:8.3-fpm-alpine
 
 # Installiamo i pacchetti base, inclusa la libreria zip (spesso vitale per Composer)
 RUN apt-get update && apt-get install -y \
