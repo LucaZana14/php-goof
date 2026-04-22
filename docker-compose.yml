@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # IL NOSTRO SERVER PHP
+  web:
+    build: .
+    ports:
+      - "8080:80" # L'app sarà visibile su http://localhost:8080
+    depends_on:
+      - db
+
+  # IL DATABASE MYSQL
+  db:
+    image: mariadb:10.6
+    restart: always
+    environment:
+      # Impostiamo le credenziali base per il DB
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: phpgoof
+      MYSQL_USER: phpgoof
+      MYSQL_PASSWORD: phpgoof
+    volumes:
+      - ./init.sql:/docker-entrypoint-init-db.d/init.sql
+    ports:
+      - "3306:3306"
