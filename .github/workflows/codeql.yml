@@ -25,7 +25,7 @@ jobs:
 
       # Inizializza i motori di CodeQL
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4 
         with:
           languages: php
           # 'none' perché PHP non deve essere compilato
@@ -35,6 +35,6 @@ jobs:
 
       # Esegue l'analisi vera e propria
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4 
         with:
           category: "/language:php"
