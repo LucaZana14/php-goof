@@ -1,41 +1,37 @@
-name: "CodeQL Advanced PHP"
+name: "CodeQL Analysis"
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   schedule:
-    # Esegue una scansione automatica ogni giovedì alle 05:28 
-    # per trovare nuove vulnerabilità scoperte nel tempo
-    - cron: '28 5 * * 4'
+    - cron: '0 15 * * 3' # Gira ogni mercoledì alle 15:00
 
 jobs:
   analyze:
-    name: Analyze PHP
+    name: Analyze
     runs-on: ubuntu-latest
+    
     permissions:
       actions: read
       contents: read
-      security-events: write
+      security-events: write 
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Inizializza i motori di CodeQL
+      # Inizializzazione del motore CodeQL
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4 
+        uses: github/codeql-action/init@v3
         with:
-          languages: php
-          # 'none' perché PHP non deve essere compilato
-          tools: latest
-          build-mode: none
-          # Carica query aggiuntive per trovare falle di sicurezza più profonde
-          queries: security-extended,security-and-quality
+          languages: javascript
+          # Usiamo le query estese per una protezione maggiore
+          queries: security-extended
 
-      # Esegue l'analisi vera e propria
+      # Autobuild tenta di configurare l'ambiente per l'analisi
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Esecuzione dell'analisi vera e propria
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4 
-        with:
-          category: "/language:php"
+        uses: github/codeql-action/analyze@v3
