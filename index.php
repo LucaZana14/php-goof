@@ -27,16 +27,16 @@
 
         <div class="col-4">
             <?php if(isset($_SESSION['message'])){ ?>
-            <div class="alert alert-<?php echo $_SESSION['message_type'];?>" role="alert">
-                <?php echo $_SESSION['message']; ?>
+            <div class="alert alert-<?php echo htmlspecialchars($_SESSION['message_type'], ENT_QUOTES, 'UTF-8');?>" role="alert">
+                <?php echo htmlspecialchars($_SESSION['message'], ENT_QUOTES, 'UTF-8'); ?>
             </div>
             <?php session_unset();} ?>
             <div class="card card-body">
                 <form action="tasks.php" method="POST">
                     <div class="form-group">
-                        <input class="form-control" type="stext" name="title" placeholder="Title" required autofocus value="<?php if(isset($title)) echo $title; ?>">
+                        <input class="form-control" type="text" name="title" placeholder="Title" required autofocus value="<?php if(isset($title)) echo htmlspecialchars($title , ENT_QUOTES, 'UTF-8'); ?>">
                         <?php if(isset($title)){
-                            ?><input type="hidden" name="edid" value="<?php echo $_GET['edid']?>"><?php } ?>
+                            ?><input type="hidden" name="edid" value="<?php echo htmlspecialchars($_GET['edid'], ENT_QUOTES, 'UTF-8')?>"><?php } ?>
 
                     </div>
                     <input type="submit" class="btn btn-success mt-3" name="save_task" value="Save todo">
@@ -65,10 +65,10 @@
                         echo $converter->convertToHtml(urldecode($row['title']));?></td>
                         <td><?php echo $row['created_at'];?></td>
                         <td>
-                            <a href="index.php?edid=<?php echo $row['id'];?>"><span class="material-icons">edit</span></a>
-                            <a href="tasks.php?delid=<?php echo $row['id'];?>"><span class="material-icons text-danger">delete_forever</span></a>
+                            <a href="index.php?edid=<?php echo htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8');?>"><span class="material-icons">edit</span></a>
+                            <a href="tasks.php?delid=<?php echo htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8');?>"><span class="material-icons text-danger">delete_forever</span></a>
                             <a href="#" data-bs-toggle="modal" data-bs-target="#myModal" title="send email reminder"><span class="material-icons email">email</span></a>
-                             <a href="pdf.php?title=<?php echo $row['title'];?>" target="_blank"><span class="material-icons picture_as_pdf">picture_as_pdf</span></a>
+                             <a href="pdf.php?title=<?php echo htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8');?>" target="_blank"><span class="material-icons picture_as_pdf">picture_as_pdf</span></a>
 
                             <!-- Modal -->
                             <div class="modal" id="myModal">
@@ -80,12 +80,12 @@
                                         <div class="modal-header">
                                             <h4 class="modal-title">Send todo as an email</h4>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-+                                        </div>                                
+                                        </div>                                
 
                                         <div class="modal-body">
 
                                             <div class="form-group">
-                                                <input class="form-control" type="stext" name="email" placeholder="Recipient Email" required autofocus>
+                                                <input class="form-control" type="text" name="email" placeholder="Recipient Email" required autofocus>
                                             </div>
                                         </div>
 
