@@ -13,10 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fondamentale: Sonar ha bisogno della cronologia Git per capire chi ha introdotto i bug
+          fetch-depth: 0 
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        # Usiamo la versione suggerita dai log per evitare warning
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Generato automaticamente da GitHub
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Quello che hai messo nei Secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
