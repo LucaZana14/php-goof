@@ -29,6 +29,7 @@ jobs:
         with:
           languages: php
           # 'none' perché PHP non deve essere compilato
+          tools: latest
           build-mode: none
           # Carica query aggiuntive per trovare falle di sicurezza più profonde
           queries: security-extended,security-and-quality
