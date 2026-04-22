@@ -21,24 +21,25 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4' # Aggiornato al 2026 per evitare ParseErrors
-          extensions: mbstring, intl, mysqli
+          php-version: '8.3'
+          extensions: mbstring, intl, mysqli, gd
           tools: composer:v2
 
-      - name: Installa dipendenze e Psalm
+      - name: Update Dependencies and Install Psalm
         run: |
-          # Installiamo tutto insieme ignorando i requisiti della piattaforma per php-goof
+          # Eliminiamo il lock per non avere conflitti tra 2021 e 2026
+          rm -f composer.lock
+          # Update -W (With all dependencies) risolve i problemi di PHPMailer e CommonMark
+          composer update -W --ignore-platform-reqs --no-interaction
+          # Aggiungiamo Psalm
           composer require --dev vimeo/psalm --ignore-platform-reqs --no-interaction
-          composer install --ignore-platform-reqs --no-interaction
 
       - name: Esegui Psalm con Taint Analysis
         run: |
-          # Genera il config solo se non esiste
           if [ ! -f psalm.xml ]; then
             ./vendor/bin/psalm --init . 1
           fi
-          
-          # Eseguiamo l'analisi. Usiamo --no-cache per essere sicuri della pulizia
+          # Creiamo il report SARIF per la tab Security di GitHub
           ./vendor/bin/psalm --taint-analysis --report=results.sarif --no-cache || true
 
       - name: Carica i risultati su GitHub Security
@@ -46,8 +47,3 @@ jobs:
         if: always()
         with:
           sarif_file: results.sarif
-
-      - name: Installa dipendenze e Psalm
-        run: |
-          # Usiamo update -W per forzare l'aggiornamento delle librerie bloccate nel lock
-          composer update league/commonmark phpmailer/phpmailer vimeo/psalm -W --ignore-platform-reqs --no-interaction

@@ -1,31 +1,31 @@
-# Usiamo l'immagine ufficiale di PHP con Apache
-FROM php:8.3-fpm-alpine
+# 1. Usiamo Apache su Debian Bookworm (molto più compatibile e sicuro)
+FROM php:8.3-apache-bookworm
 
-RUN apk update && apk add --no-cache \
+# 2. Usiamo apt-get (Debian) invece di apk (Alpine)
+RUN apt-get update && apt-get install -y \
     git \
     zip \
     unzip \
     libzip-dev \
     libpng-dev \
-    icu-dev \
     && docker-php-ext-install mysqli pdo pdo_mysql zip \
-    && rm -rf /var/cache/apk/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copiamo Composer
+# 3. Copiamo Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Abilitiamo il modulo rewrite di Apache
+# 4. Ora a2enmod funzionerà!
 RUN a2enmod rewrite
 
 WORKDIR /var/www/html/
 
-# Questa volta copiamo TUTTO il progetto prima di lanciare Composer.
-# Così troverà non solo il composer.json, ma anche il composer.lock e altri file necessari.
+# 5. Copiamo il progetto
 COPY . .
 
-# Lanciamo Composer in modalità "blindata":
-# --no-plugins e --no-scripts evitano che codice vecchio mandi in crash l'installazione
-RUN composer install --ignore-platform-reqs --no-interaction --no-plugins --no-scripts --prefer-dist
+# 6. Installiamo le dipendenze. 
+# Rimuoviamo il lock vecchio per evitare i conflitti di versione che hai visto
+RUN rm -f composer.lock && \
+    composer install --ignore-platform-reqs --no-interaction --no-plugins --no-scripts --prefer-dist
 
-# Diamo i permessi ad Apache
+# 7. Permessi corretti per Apache
 RUN chown -R www-data:www-data /var/www/html/
