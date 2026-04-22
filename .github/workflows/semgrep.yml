@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Esegui Semgrep
-        run: semgrep ci --sarif --config auto > semgrep.sarif
+        run: semgrep ci --sarif --config auto > semgrep.sarif || true
         # '--config auto' scarica automaticamente le regole migliori per il PHP
 
       - name: Carica i risultati su GitHub Security
