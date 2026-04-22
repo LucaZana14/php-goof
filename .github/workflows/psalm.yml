@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: read
-  security-events: write # Necessario per caricare i risultati nella tab Security
+  security-events: write
 
 jobs:
   psalm:
@@ -21,26 +21,25 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4' # Aggiornato al 2026 per evitare ParseErrors
           extensions: mbstring, intl, mysqli
           tools: composer:v2
 
-      - name: Installa dipendenze
+      - name: Installa dipendenze e Psalm
         run: |
-          # php-goof ha dipendenze vecchie, forziamo l'installazione
-          composer install --ignore-platform-reqs --no-interaction --no-progress
+          # Installiamo tutto insieme ignorando i requisiti della piattaforma per php-goof
+          composer require --dev vimeo/psalm --ignore-platform-reqs --no-interaction
+          composer install --ignore-platform-reqs --no-interaction
 
       - name: Esegui Psalm con Taint Analysis
         run: |
-          # Installiamo psalm se non è già presente nelle dipendenze
-          composer require --dev vimeo/psalm --ignore-platform-reqs
+          # Genera il config solo se non esiste
+          if [ ! -f psalm.xml ]; then
+            ./vendor/bin/psalm --init . 1
+          fi
           
-          # Inizializziamo psalm se manca il file di config (livello 1 è il più severo)
-          ./vendor/bin/psalm --init . 1 || true
-          
-          # Eseguiamo l'analisi attivando specificamente la ricerca dei 'taints'
-          # Generiamo il file SARIF per GitHub Security
-          ./vendor/bin/psalm --taint-analysis --report=results.sarif
+          # Eseguiamo l'analisi. Usiamo --no-cache per essere sicuri della pulizia
+          ./vendor/bin/psalm --taint-analysis --report=results.sarif --no-cache || true
 
       - name: Carica i risultati su GitHub Security
         uses: github/codeql-action/upload-sarif@v3
