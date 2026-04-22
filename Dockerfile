@@ -1,7 +1,7 @@
 # Usiamo l'immagine ufficiale di PHP con Apache
 FROM php:8.3-fpm-alpine
 
-RUN apk update && apk add --no-network --no-cache \
+RUN apk update && apk add --no-cache \
     git \
     zip \
     unzip \
