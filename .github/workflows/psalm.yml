@@ -46,3 +46,9 @@ jobs:
         if: always()
         with:
           sarif_file: results.sarif
+
+      - name: Installa dipendenze e Psalm
+        run: |
+            # Il flag -W forza l'aggiornamento anche delle librerie "bloccate"
+            composer require --dev vimeo/psalm --ignore-platform-reqs -W
+            composer install --ignore-platform-reqs --no-interaction -W
