@@ -1,0 +1,30 @@
+name: SAST - Semgrep
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  security-events: write
+
+jobs:
+  semgrep:
+    name: Semgrep Scan
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep # Immagine ufficiale di Semgrep
+    steps:
+      - name: Checkout del codice
+        uses: actions/checkout@v4
+
+      - name: Esegui Semgrep
+        run: semgrep ci --sarif --config auto > semgrep.sarif
+        # '--config auto' scarica automaticamente le regole migliori per il PHP
+
+      - name: Carica i risultati su GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
