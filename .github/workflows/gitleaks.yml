@@ -1,4 +1,4 @@
-name: Secret Scanning (GitLeaks)
+name: Secret Scanning - GitLeaks
 
 on:
   push:
@@ -14,10 +14,7 @@ jobs:
       - name: Checkout del codice
         uses: actions/checkout@v4
         with:
-          # fetch-depth: 0 è fondamentale. Dice a GitHub di scaricare 
-          # TUTTA la storia dei commit, non solo l'ultimo. 
-          # I segreti nascosti nel passato sono pericolosi quanto quelli di oggi.
-          fetch-depth: 0 
+          fetch-depth: 0
 
       - name: Esegui GitLeaks
         uses: gitleaks/gitleaks-action@v2
