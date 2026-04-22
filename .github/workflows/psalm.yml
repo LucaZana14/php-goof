@@ -1,0 +1,49 @@
+name: "SAST - Psalm (Taint Analysis)"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write # Necessario per caricare i risultati nella tab Security
+
+jobs:
+  psalm:
+    name: Psalm Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, mysqli
+          tools: composer:v2
+
+      - name: Installa dipendenze
+        run: |
+          # php-goof ha dipendenze vecchie, forziamo l'installazione
+          composer install --ignore-platform-reqs --no-interaction --no-progress
+
+      - name: Esegui Psalm con Taint Analysis
+        run: |
+          # Installiamo psalm se non è già presente nelle dipendenze
+          composer require --dev vimeo/psalm --ignore-platform-reqs
+          
+          # Inizializziamo psalm se manca il file di config (livello 1 è il più severo)
+          ./vendor/bin/psalm --init . 1 || true
+          
+          # Eseguiamo l'analisi attivando specificamente la ricerca dei 'taints'
+          # Generiamo il file SARIF per GitHub Security
+          ./vendor/bin/psalm --taint-analysis --report=results.sarif
+
+      - name: Carica i risultati su GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif
