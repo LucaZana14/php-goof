@@ -1,0 +1,7 @@
+# Zlib / Minizip: Integer overflow. Nessuna patch disponibile su Debian Bookworm.
+# Rischio accettato in quanto l'app non espone minizip direttamente all'utente.
+CVE-2023-45853
+
+# SQLite3: Integer overflow (2025). Nessuna patch disponibile su Debian Bookworm.
+# Rischio accettato in attesa di backport da parte di Debian Security.
+CVE-2025-7458
