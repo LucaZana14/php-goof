@@ -13,13 +13,19 @@ services:
   db:
     image: mariadb:10.6
     restart: always
+    read_only: true
+    tmpfs: 
+      - /tmp
+      - /var/run/mysqld
+      - /var/cache/mariadb
+
     environment:
       # Impostiamo le credenziali base per il DB
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: phpgoof
-      MYSQL_USER: phpgoof
-      MYSQL_PASSWORD: phpgoof
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: goof
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     volumes:
-      - ./init.sql:/docker-entrypoint-init-db.d/init.sql
+      - db-data:/var/lib/mysql
     ports:
       - "3306:3306"
