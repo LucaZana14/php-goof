@@ -1,0 +1,45 @@
+name: "SCA & SAST - Snyk Scanner"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write # Fondamentale per l'upload dei risultati SARIF
+
+jobs:
+  snyk-scan:
+    name: Snyk Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Installiamo Composer per permettere a Snyk di leggere bene l'albero delle dipendenze
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+
+      - name: Install Dependencies
+        run: composer install --ignore-platform-reqs --no-interaction --prefer-dist
+
+      - name: Esegui Snyk per testare vulnerabilità Open Source e Codice
+        uses: snyk/actions/php@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          # --sarif-file-output crea il file per GitHub
+          # --all-projects fa scansionare tutto quello che trova
+          args: --sarif-file-output=snyk-results.sarif --all-projects
+
+      - name: Carica i risultati su GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() # Carica il report anche se Snyk trova errori e fa fallire lo step precedente
+        with:
+          sarif_file: snyk-results.sarif
