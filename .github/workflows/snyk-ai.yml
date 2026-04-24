@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# --- IL FIX DI CHECKOV PARTE DA QUI ---
+permissions:
+  contents: read # Permette solo di leggere il codice sorgente
+# --------------------------------------
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -30,14 +35,10 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # 1. SCAN DELLE LIBRERIE IA (SCA)
-      # Questo troverà i 22 errori di cui parlavamo prima
       - name: Snyk Open Source Test (Requirements)
         run: |
           snyk test --file=requirements.txt --package-manager=pip || echo "Vulnerabilità trovate nelle librerie IA."
 
-      # 2. SCAN DEL CODICE IA (SAST)
-      # Qui Snyk userà il suo motore AI per trovare errori nel tuo file Python
       - name: Snyk Code Test (AI Logic)
         run: |
           snyk code test ai_service.py || echo "Falle logiche trovate nel codice IA."
