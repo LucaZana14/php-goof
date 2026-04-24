@@ -14,6 +14,8 @@ services:
     image: mariadb:10.6
     restart: always
     read_only: true
+    security_opt:
+      - no-new-privileges:true
     tmpfs: 
       - /tmp
       - /var/run/mysqld
