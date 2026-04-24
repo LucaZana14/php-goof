@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Harden the runner
-        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.2
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.10.2
         with:
           egress-policy: audit
 
