@@ -25,6 +25,7 @@ jobs:
           # Facciamo in modo che sputi i risultati anche nel pannello delle annotazioni di GitHub
           format: sarif
           output-file: hadolint.sarif
+          failure-threshold: error
 
       - name: Carica i risultati su GitHub Security
         uses: github/codeql-action/upload-sarif@v4 
