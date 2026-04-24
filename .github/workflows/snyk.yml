@@ -37,7 +37,7 @@ jobs:
           tools: composer:v2
 
       - name: Setup Python
-        uses: actions/setup-python@v5.3.0   # v5.3.0
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: '3.10'
 
@@ -57,7 +57,7 @@ jobs:
 
       - name: Carica i risultati su GitHub Security
         # Hash ufficiale stabile v3.28.10
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce64ddcb0d8d890d2df4a9d1c04ff297367dea2a # v3.35.2
         # Carichiamo il SARIF solo se il file esiste ed è più grande di 0 byte
         if: always() && hashFiles('snyk-results.sarif') != ''
         with:
