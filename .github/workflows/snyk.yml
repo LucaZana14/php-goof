@@ -15,12 +15,17 @@ jobs:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       # Installiamo Composer per permettere a Snyk di leggere bene l'albero delle dipendenze
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2
         with:
           php-version: '8.3'
           tools: composer:v2
@@ -29,7 +34,7 @@ jobs:
         run: composer install --ignore-platform-reqs --no-interaction --prefer-dist
 
       - name: Esegui Snyk per testare vulnerabilità Open Source e Codice
-        uses: snyk/actions/php@master
+        uses: snyk/actions/php@9adf32b1121593767fc3c057af55b55db032dc04 # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -39,7 +44,7 @@ jobs:
           args: --sarif-file-output=snyk-results.sarif --all-projects
 
       - name: Carica i risultati su GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce64ddcb0d8d890d2df4a9d1c04ff297367dea2a # v3.35.2
         if: always() # Carica il report anche se Snyk trova errori e fa fallire lo step precedente
         with:
           sarif_file: snyk-results.sarif

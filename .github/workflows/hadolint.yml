@@ -15,11 +15,16 @@ jobs:
     name: Hadolint Scan
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        with:
+          egress-policy: audit
+
       - name: Checkout del codice
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Esegui Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
         with:
           dockerfile: Dockerfile
           # Facciamo in modo che sputi i risultati anche nel pannello delle annotazioni di GitHub
@@ -28,7 +33,7 @@ jobs:
           failure-threshold: error
 
       - name: Carica i risultati su GitHub Security
-        uses: github/codeql-action/upload-sarif@v4 
+        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
         if: always()
         with:
           sarif_file: hadolint.sarif
