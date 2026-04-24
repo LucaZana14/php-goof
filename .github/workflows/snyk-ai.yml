@@ -6,9 +6,8 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# FIX NODE 24: Forziamo l'uso dell'ambiente più recente per evitare il blocco di giugno 2026
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Restiamo nel futuro!
 
 permissions:
   contents: read
@@ -21,6 +20,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 1. SETUP PYTHON (Necessario per risolvere i requirements.txt)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 2. INSTALLA DIPENDENZE IA (Così Snyk le "vede" nel sistema)
+      - name: Install AI Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Install Snyk CLI
         run: |
           curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
@@ -30,26 +41,20 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # 1. AI-BOM TEST: Analisi dei rischi
+      # 3. AI-BOM TEST
       - name: Snyk AI-BOM Test
         run: |
-          snyk ai-bom test --all-projects || echo "Vulnerabilità IA trovate, procedo con la generazione del report."
+          # Usiamo --command=python3 per aiutare Snyk a orientarsi
+          snyk ai-bom test --all-projects || echo "Rischi IA rilevati."
 
-      # 2. GENERAZIONE SBOM: Forziamo la scrittura del file
+      # 4. GENERAZIONE SBOM
       - name: Snyk SBOM Generate
         run: |
-          # Usiamo 'snyk sbom' che è il nuovo standard 2026
-          # Usiamo una subshell per assicurarci che il file venga scritto anche se Snyk "esplode"
-          (snyk sbom --format=cyclonedx1.4+json --all-projects > ai-bom-results.json) || echo "SBOM generata nonostante gli errori"
+          snyk sbom --format=cyclonedx1.4+json --all-projects --output=ai-bom-results.json || echo "SBOM generata con vulnerabilità."
           
-      # DEBUG: Vediamo se il file esiste davvero prima di provare a caricarlo
-      - name: Check file existence
-        run: ls -lh ai-bom-results.json
-
       - name: Upload AI-BOM Artifact
         uses: actions/upload-artifact@v4
         with:
           name: snyk-ai-bom-report
           path: ai-bom-results.json
-          # Se il file non c'è, fallisce il job così capiamo subito perché
           if-no-files-found: error
