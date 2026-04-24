@@ -2,7 +2,7 @@
 FROM php:8.3-apache-bookworm@sha256:daf3cad5642798e462a029e41d6347cba7f3362f7028f8e60c3623dbadc4e590
 
 # 2. Aggiungiamo CURL alla lista dei pacchetti (ci servirà per l'healthcheck)
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y -no-install-recommends \
     git \
     zip \
     unzip \
