@@ -8,5 +8,8 @@
         "league/commonmark": "^2.4", 
         "phpmailer/phpmailer": "^6.9.1",
         "dompdf/dompdf": "^2.0.4"
+    },
+    "autoload":{
+        "classmap": ["src/"]
     }
 }
