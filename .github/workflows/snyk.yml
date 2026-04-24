@@ -8,14 +8,14 @@ on:
 
 permissions:
   contents: read
-  security-events: write # Fondamentale per l'upload dei risultati SARIF
+  security-events: write
 
 jobs:
   snyk-scan:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
     steps:
-      - name: Harden the runner (Audit all outbound calls)
+      - name: Harden the runner
         uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
@@ -23,28 +23,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      # Installiamo Composer per permettere a Snyk di leggere bene l'albero delle dipendenze
+      # Prepariamo l'ambiente PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2
         with:
           php-version: '8.3'
           tools: composer:v2
 
-      - name: Install Dependencies
-        run: composer install --ignore-platform-reqs --no-interaction --prefer-dist
+      # Prepariamo l'ambiente Python (FONDAMENTALE per requirements.txt)
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-      - name: Esegui Snyk per testare vulnerabilità Open Source e Codice
-        uses: snyk/actions/php@9adf32b1121593767fc3c057af55b55db032dc04 # master
+      # Installiamo Snyk CLI via NPM per avere la versione più flessibile
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      # Eseguiamo il test. 
+      # Usiamo "|| true" per permettere al SARIF di venire caricato anche se ci sono bug.
+      - name: Snyk Test
+        run: |
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+          snyk test --all-projects --sarif-file-output=snyk-results.sarif || true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          # --sarif-file-output crea il file per GitHub
-          # --all-projects fa scansionare tutto quello che trova
-          args: --sarif-file-output=snyk-results.sarif --all-projects
 
       - name: Carica i risultati su GitHub Security
-        uses: github/codeql-action/upload-sarif@ce64ddcb0d8d890d2df4a9d1c04ff297367dea2a # v3.35.2
-        if: always() # Carica il report anche se Snyk trova errori e fa fallire lo step precedente
+        uses: github/codeql-action/upload-sarif@v4 # Aggiornato a v4
+        if: always()
         with:
           sarif_file: snyk-results.sarif

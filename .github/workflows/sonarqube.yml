@@ -6,16 +6,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-
 permissions:
-    contents: read
+  contents: read
 
 jobs:
   sonarcloud:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
     steps:
-      - name: Harden the runner (Audit all outbound calls)
+      - name: Harden the runner
         uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
@@ -25,8 +24,12 @@ jobs:
           fetch-depth: 0 
 
       - name: SonarCloud Scan
-        # Usiamo la versione suggerita dai log per evitare warning
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
+        uses: SonarSource/sonarqube-scan-action@v3.0.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Necessario per decorare le PR
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          # Passiamo esplicitamente l'organizzazione per evitare dubbi
+          args: >
+            -Dsonar.organization=lucazana14
+            -Dsonar.projectKey=LucaZana14_php-goof
