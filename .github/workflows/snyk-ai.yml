@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# FIX NODE 24: Forziamo l'uso dell'ambiente più recente per evitare il blocco di giugno 2026
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
 
@@ -26,18 +30,26 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # 1. AI-BOM TEST: Cerca rischi nei componenti IA (modelli, config, librerie ML)
+      # 1. AI-BOM TEST: Analisi dei rischi
       - name: Snyk AI-BOM Test
         run: |
-          snyk ai-bom test --all-projects || true
+          snyk ai-bom test --all-projects || echo "Vulnerabilità IA trovate, procedo con la generazione del report."
 
-      # 2. AI-BOM GENERATE: Crea il report formale dei componenti IA
-      - name: Snyk AI-BOM Generate
+      # 2. GENERAZIONE SBOM: Forziamo la scrittura del file
+      - name: Snyk SBOM Generate
         run: |
-          snyk sbom --format cyclonedx1.4+json --all-projects --output=ai-bom-results.json || echo "SBOM generata con avvisi"
+          # Usiamo 'snyk sbom' che è il nuovo standard 2026
+          # Usiamo una subshell per assicurarci che il file venga scritto anche se Snyk "esplode"
+          (snyk sbom --format=cyclonedx1.4+json --all-projects > ai-bom-results.json) || echo "SBOM generata nonostante gli errori"
           
+      # DEBUG: Vediamo se il file esiste davvero prima di provare a caricarlo
+      - name: Check file existence
+        run: ls -lh ai-bom-results.json
+
       - name: Upload AI-BOM Artifact
         uses: actions/upload-artifact@v4
         with:
           name: snyk-ai-bom-report
           path: ai-bom-results.json
+          # Se il file non c'è, fallisce il job così capiamo subito perché
+          if-no-files-found: error
