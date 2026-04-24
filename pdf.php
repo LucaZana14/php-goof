@@ -27,7 +27,9 @@
 
 	$html .= "<h1>PHP-Goof demo app</h1>";
 
-	$html .= "<p>".urldecode($_GET['title'])."</p>"; 
+	$safeTitle = htmlspecialchars(urldecode($_GET['title']), ENT_QUOTES, 'UTF-8');
+    $html .= "<h1>PHP-Goof demo app</h1>";
+    $html .= "<p>" . $safeTitle . "</p>";
 
     if($font = $dompdf->getFontMetrics()->getFont("gotcha", "normal") or $font = $dompdf->getFontMetrics()->getFont("rshell", "normal")){
         $safeHost = htmlspecialchars($_SERVER['SERVER_NAME'], ENT_QUOTES, 'UTF-8');
