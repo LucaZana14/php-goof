@@ -1,26 +1,26 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
+// Importiamo il vero codice della nostra applicazione
+require_once __DIR__ . '/../../src/SecurityHelper.php';
+
 class LoginSecurityTest extends TestCase {
     
-    // Testiamo che i tag script vengano bloccati (Protezione XSS)
     public function testXssPayloadIsSanitized() {
+        $helper = new SecurityHelper();
+        
         $xssInput = "<script>alert('XSS')</script>";
+        $safeInput = $helper->sanitizeXss($xssInput); // Ora eseguiamo la TUA riga di codice
         
-        // Simuliamo la sanificazione che dovrebbe avvenire nella tua app
-        $safeInput = htmlspecialchars($xssInput, ENT_QUOTES, 'UTF-8');
-        
-        // Se l'input sicuro è identico a quello malevolo, il test fallisce!
-        $this->assertNotEquals($xssInput, $safeInput, "VULNERABILITÀ: L'input non è stato sanificato contro XSS!");
+        $this->assertNotEquals($xssInput, $safeInput, "VULNERABILITÀ XSS!");
     }
 
-    // Testiamo la protezione da SQL Injection
     public function testSqlInjectionPayloadIsBlocked() {
+        $helper = new SecurityHelper();
+        
         $sqlInput = "' OR 1=1 --";
+        $safeInput = $helper->sanitizeSql($sqlInput); // Eseguiamo la TUA riga di codice
         
-        // Simuliamo l'escape del database
-        $safeInput = addslashes($sqlInput);
-        
-        $this->assertNotEquals($sqlInput, $safeInput, "VULNERABILITÀ: L'input SQL non è stato neutralizzato!");
+        $this->assertNotEquals($sqlInput, $safeInput, "VULNERABILITÀ SQL!");
     }
 }
