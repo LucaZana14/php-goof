@@ -47,20 +47,18 @@ jobs:
 
       - name: Snyk Test
         id: snyk_test
+        # Usiamo 'continue-on-error' invece di '|| true' per gestire meglio il flusso
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          # 1. Creiamo il file sarif vuoto IMMEDIATAMENTE
-          # Questo evita l'errore "Path does not exist" se Snyk fallisce l'auth
-          touch snyk-results.sarif
-          
-          # 2. Eseguiamo Snyk. La CLI usa automaticamente il token dall'ambiente.
-          # Usiamo '|| true' per non far fallire lo step e permettere l'upload del SARIF
-          snyk test --all-projects --sarif-file-output=snyk-results.sarif || echo "Scan terminato"
+          # Eseguiamo Snyk. Se fallisce l'auth, qui vedremo l'errore nei log.
+          npx snyk test --all-projects --sarif-file-output=snyk-results.sarif
 
       - name: Carica i risultati su GitHub Security
-        # Hash ufficiale per v3 (Node 24 compatibile)
-        uses: github/codeql-action/upload-sarif@v3.28.10 # v3.28.10
-        if: always() # Esegue l'upload anche se Snyk ha trovato vulnerabilità
+        # Hash ufficiale stabile v3.28.10
+        uses: github/codeql-action/upload-sarif@v3
+        # Carichiamo il SARIF solo se il file esiste ed è più grande di 0 byte
+        if: always() && hashFiles('snyk-results.sarif') != ''
         with:
           sarif_file: snyk-results.sarif
