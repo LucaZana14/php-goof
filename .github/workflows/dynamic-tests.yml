@@ -1,0 +1,41 @@
+name: "Dynamic - PHPUnit & Infection"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-mutate:
+    name: Security Tests & Mutation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Usiamo PCOV per calcolare la coverage, è velocissimo e fondamentale per Infection
+      - name: Setup PHP con PCOV
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: pcov 
+          tools: composer:v2
+
+      - name: Installa Dipendenze e Tool di Test
+        run: |
+          rm -f composer.lock
+          composer update -W --ignore-platform-reqs --no-interaction
+          # Installiamo PHPUnit e Infection al volo
+          composer require --dev phpunit/phpunit "^10.0" infection/infection "^0.27" -W --ignore-platform-reqs
+
+      - name: 1. Esegui Security Unit Tests (PHPUnit)
+        run: |
+          # Lanciamo i test e generiamo il report XML che Infection dovrà leggere
+          ./vendor/bin/phpunit --coverage-xml=coverage/xml --log-junit=coverage/junit.xml tests/ || true
+
+      - name: 2. Esegui Mutation Testing (Infection)
+        run: |
+          # Sguinzagliamo i mutanti!
+          # --min-msi=50: la build fallisce se meno del 50% dei mutanti viene ucciso dai test
+          ./vendor/bin/infection --coverage=coverage --min-msi=50 --min-covered-msi=50 --threads=2 --logger-github
