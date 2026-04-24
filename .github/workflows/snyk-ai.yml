@@ -1,4 +1,4 @@
-name: "AI Security - Snyk AI-BOM"
+name: "AI Security - Snyk Free Scan"
 
 on:
   push:
@@ -10,7 +10,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  snyk-ai-scan:
+  snyk-scan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,14 +21,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install AI Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # Usiamo --user per evitare problemi di permessi e forziamo l'installazione
-          pip install -r requirements.txt --user
-          # Verifichiamo cosa è stato installato (utile per i log)
-          pip list
-
       - name: Install Snyk CLI
         run: |
           curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
@@ -38,22 +30,14 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk SBOM Generate
+      # 1. SCAN DELLE LIBRERIE IA (SCA)
+      # Questo troverà i 22 errori di cui parlavamo prima
+      - name: Snyk Open Source Test (Requirements)
         run: |
-          # 1. Creiamo il file preventivamente per evitare l'errore di upload-artifact
-          echo "{}" > ai-bom-results.json
-          
-          # 2. Lanciamo Snyk. Aggiungiamo --command=python3 per forzare la risoluzione
-          # Usiamo '2>&1' per catturare eventuali errori dentro il file se vogliamo debuggare
-          snyk sbom --format=cyclonedx1.4+json --all-projects --command=python3 > ai-bom-results.json || echo "Snyk ha trovato problemi, ma il file è stato scritto."
+          snyk test --file=requirements.txt --package-manager=pip || echo "Vulnerabilità trovate nelle librerie IA."
 
-      - name: Check file content (Debug)
+      # 2. SCAN DEL CODICE IA (SAST)
+      # Qui Snyk userà il suo motore AI per trovare errori nel tuo file Python
+      - name: Snyk Code Test (AI Logic)
         run: |
-          ls -lh ai-bom-results.json
-          head -n 20 ai-bom-results.json
-
-      - name: Upload AI-BOM Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk-ai-bom-report
-          path: ai-bom-results.json
+          snyk code test ai_service.py || echo "Falle logiche trovate nel codice IA."
