@@ -15,7 +15,7 @@ services:
     restart: always
     read_only: true
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges: true
     tmpfs: 
       - /tmp
       - /var/run/mysqld
