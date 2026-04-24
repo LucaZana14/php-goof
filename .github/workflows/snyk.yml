@@ -43,7 +43,7 @@ jobs:
 
       - name: Install Snyk CLI
         # Pinniamo la versione specifica di Snyk per Scorecard
-        run: npm install -g snyk@v1.1295.0 
+        run: npm install -g snyk@sha512-3r+PlwWBQhWMkFGEpS8NMQDXAcBgYoHtq8tocK/6x95PVAEQpoIcqyR1n5o4kAvvcY7v5BxnWYpG/xMSQ3aggQ== 
 
       - name: Snyk Test
         id: snyk_test
