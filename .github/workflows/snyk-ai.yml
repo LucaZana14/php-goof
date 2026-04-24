@@ -1,0 +1,43 @@
+name: "AI Security - Snyk AI-BOM"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  snyk-ai-scan:
+    name: Snyk AI Infrastructure Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Snyk CLI
+        run: |
+          curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
+          chmod +x ./snyk
+          mv snyk /usr/local/bin/
+
+      - name: Snyk Auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      # 1. AI-BOM TEST: Cerca rischi nei componenti IA (modelli, config, librerie ML)
+      - name: Snyk AI-BOM Test
+        run: |
+          snyk ai-bom test --all-projects || true
+
+      # 2. AI-BOM GENERATE: Crea il report formale dei componenti IA
+      - name: Snyk AI-BOM Generate
+        run: |
+          snyk ai-bom generate --output-file=ai-bom-results.json
+          
+      - name: Upload AI-BOM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-ai-bom-report
+          path: ai-bom-results.json

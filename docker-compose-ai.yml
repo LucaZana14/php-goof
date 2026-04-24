@@ -1,0 +1,5 @@
+services:
+  pinecone-emulator:
+    image: pinecone-io/emulator:latest # Simuliamo un DB vettoriale
+    ports:
+      - "8081:8081"
