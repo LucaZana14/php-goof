@@ -8,12 +8,16 @@ on:
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
   semgrep:
     name: Semgrep Scan
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
     container:
       # Immagine ufficiale, aggiornata e supportata. Nessun wrapper.
       image: semgrep/semgrep

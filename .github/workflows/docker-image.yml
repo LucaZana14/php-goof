@@ -6,12 +6,15 @@ on:
 
 permissions:
   contents: read
-  security-events: write # Necessario per caricare i risultati nella tab Security
 
 jobs:
   build-and-scan:
     name: Build and Scan
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
