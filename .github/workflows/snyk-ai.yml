@@ -34,7 +34,7 @@ jobs:
       # 2. AI-BOM GENERATE: Crea il report formale dei componenti IA
       - name: Snyk AI-BOM Generate
         run: |
-          snyk ai-bom generate --output-file=ai-bom-results.json
+          snyk sbom --format cyclonedx1.5+json --all-projects > ai-bom-results.json
           
       - name: Upload AI-BOM Artifact
         uses: actions/upload-artifact@v4
