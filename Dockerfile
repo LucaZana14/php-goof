@@ -31,8 +31,8 @@ COPY . .
 RUN rm -f composer.lock && \
     composer install --ignore-platform-reqs --no-interaction --no-plugins --no-scripts --prefer-dist
 
-# 7. Permessi corretti per Apache
-RUN chown -R 33:33 www-data:www-data /var/www/html/ /var/run/apache2 /var/lock/apache2 /var/log/apache2
+# 7. Permessi corretti per Apache (Usiamo solo gli ID numerici 33:33)
+RUN chown -R 33:33 /var/www/html/ /var/run/apache2 /var/lock/apache2 /var/log/apache2
 
 # --- LA CURA PER CHECKOV ---
 # checkov:skip
