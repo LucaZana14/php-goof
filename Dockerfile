@@ -1,5 +1,5 @@
 # 1. Usiamo Apache su Debian Bookworm
-FROM php:8.3-apache-bookworm@sha256:daf3cad5642798e462a029e41d6347cba7f3362f7028f8e60c3623dbadc4e590
+FROM php:8.5-apache-bookworm@sha256:e340b45ad8e72aa7addc22a991c2c66f424309f090695c63cdb2e005933a5c86
 
 # 2. Aggiungiamo CURL alla lista dei pacchetti (ci servirà per l'healthcheck)
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
