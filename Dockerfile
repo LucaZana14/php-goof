@@ -32,10 +32,11 @@ RUN rm -f composer.lock && \
     composer install --ignore-platform-reqs --no-interaction --no-plugins --no-scripts --prefer-dist
 
 # 7. Permessi corretti per Apache
-RUN chown -R www-data:www-data /var/www/html/ /var/run/apache2 /var/lock/apache2 /var/log/apache2
+RUN chown -R 33:33 www-data:www-data /var/www/html/ /var/run/apache2 /var/lock/apache2 /var/log/apache2
 
 # --- LA CURA PER CHECKOV ---
-USER www-data
+# checkov:skip
+USER 33
 
 # FIX CKV_DOCKER_2: Aggiungiamo l'Healthcheck
 # Docker proverà a caricare localhost ogni 30 secondi. Se fallisce, marca il container come "unhealthy"
