@@ -1,4 +1,4 @@
-name: "SAST - Semgrep"
+name: "SAST - Semgrep (Cloud)"
 
 on:
   push:
@@ -15,16 +15,18 @@ jobs:
     name: Semgrep Scan
     runs-on: ubuntu-latest
     container:
-      # Usiamo il nuovo nome ufficiale dell'immagine (returntocorp ora è solo semgrep)
+      # Immagine ufficiale, aggiornata e supportata. Nessun wrapper.
       image: semgrep/semgrep
     steps:
       - name: Checkout del codice
         uses: actions/checkout@v4
 
-      - name: Esegui Semgrep Offline
-        # Usiamo 'scan' invece di 'ci' per forzare la modalità totalmente offline.
-        # Passiamo esplicitamente le regole di sicurezza senza usare 'auto'.
-        run: semgrep scan --sarif --config p/php --config p/security-audit --config p/secrets > semgrep.sarif || true
+      - name: Esegui Semgrep CI
+        # Usiamo il comando nativo "semgrep ci" che legge il token,
+        # scarica le tue regole dalla dashboard e genera il SARIF.
+        run: semgrep ci --sarif > semgrep.sarif || true
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
       - name: Carica i risultati su GitHub Security
         uses: github/codeql-action/upload-sarif@v3
