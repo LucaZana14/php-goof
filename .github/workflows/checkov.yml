@@ -1,0 +1,36 @@
+name: "IaC Security - Checkov"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write # Fondamentale per caricare gli alert nella tab Security
+
+jobs:
+  checkov:
+    name: Checkov Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Checkov action
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          # Diciamo a Checkov di guardare il Dockerfile e i file di GitHub Actions
+          framework: dockerfile,github_actions 
+          # Vogliamo l'output sia in console per leggerlo, sia in SARIF per GitHub
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+          # soft_fail: true # Decommenta questa riga se non vuoi che l'errore blocchi la build
+
+      - name: Carica i risultati su GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() # Esegue l'upload anche se Checkov trova degli errori
+        with:
+          sarif_file: results.sarif
