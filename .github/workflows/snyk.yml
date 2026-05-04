@@ -57,7 +57,7 @@ jobs:
 
       - name: Carica i risultati su GitHub Security
         # Hash ufficiale stabile v3.28.10
-        uses: github/codeql-action/upload-sarif@ce64ddcb0d8d890d2df4a9d1c04ff297367dea2a # v3.35.2
+        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7 # v4.35.3
         # Carichiamo il SARIF solo se il file esiste ed è più grande di 0 byte
         if: always() && hashFiles('snyk-results.sarif') != ''
         with:
