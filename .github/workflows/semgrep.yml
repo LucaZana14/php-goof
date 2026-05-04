@@ -19,7 +19,6 @@ jobs:
       security-events: write
 
     container:
-      # Immagine ufficiale, aggiornata e supportata. Nessun wrapper.
       image: semgrep/semgrep
     steps:
       - name: Harden the runner (Audit all outbound calls)
