@@ -51,7 +51,7 @@ jobs:
 
       # 4. Caricamento dei risultati su GitHub
       - name: Upload Trivy scans to GitHub Security
-        uses: github/codeql-action/upload-sarif@ce64ddcb0d8d890d2df4a9d1c04ff297367dea2a # v3.35.2
+        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7 # v4.35.3
         if: always()
         with:
           # Carichiamo entrambi i report (Trivy permette di farlo unendo i file o caricandoli separatamente)
@@ -59,7 +59,7 @@ jobs:
           category: 'trivy-image'
 
       - name: Upload Trivy scans to GitHub Security
-        uses: github/codeql-action/upload-sarif@ce64ddcb0d8d890d2df4a9d1c04ff297367dea2a # v3.35.2
+        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7 # v4.35.3
         if: always()
         with:
             # Carichiamo entrambi i report (Trivy permette di farlo unendo i file o caricandoli separatamente)
